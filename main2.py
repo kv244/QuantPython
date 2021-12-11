@@ -16,8 +16,9 @@ d2 = date_to.strftime("%d/%m/%Y")
 print(f"Running for date range {d1} to {d2}")
 
 # instruments
-ticker_list = ["MSFT", "GOF", "PKO", "PCN", "UTG", "UTF", "CSCO", "VZ", "OKE", "FB", "PATH", "OLED",
-               "MAIN", "ARCC", "HTGC", "RFI", "IVV", "VUG", "AGG", "NVDA"]
+ticker_list = ["MSFT", "AAPL", "IVV", "VUG", "IRM", "CSCO", "ARCC", "UNP", "OKE", "HTGC", "UTF",
+               "PCN", "IBM", "OLED", "EWA", "MCHI", "VZ", "SNAP", "MAIN", "UTG", "PKO", "RFI", "JNJ",
+               "MDT", "GOF", "EWS", "FB", "ASG", "DOCU", "PATH"]
 # TODO pull from IBRK
 
 # database
@@ -39,12 +40,12 @@ try:
         # print(historical_datas[ticker])
         my_data = historical_datas[ticker][['open', 'close']]
         # my_data.index pandas.core.indexes.datetimes.DatetimeIndex'
-        print(my_data) # it is a dictionary of data frames
+        # print(my_data) # it is a dictionary of data frames
         # print(f"{ticker} data")
         # print(my_data.describe())
         signal_n = my_data.mean(axis=0)  # this is a series
         current = si.get_live_price(ticker)
-        print(f"{ticker}: Signal {signal_n}  vs current price {current}")
+        print(f"{ticker}: Signal {signal_n[1]}  vs current price {current}")
         # print(signal[1]) # close
 
         if current > signal_n[1]:
