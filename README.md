@@ -1,3 +1,4 @@
 # QuantPython
 
-Basic programmatic trading in Python and Postgres, using Interactive Brokers API
+Basic programmatic trading in Python and Postgres, using Interactive Brokers API.
+

@@ -1,4 +1,3 @@
-# todo class
 # todo database iffy
 # todo pull from IBRK
 # todo how to use the view?
@@ -11,6 +10,7 @@ import datetime as dt
 import psycopg2
 import os
 import time
+from client import IBClient
 
 
 class QuantAuto:
@@ -34,6 +34,40 @@ class QuantAuto:
                             'UTF', 'UTG', 'GOF', 'HTGC', 'EWS', 'PCN', 'ARCC', 'ASG', 'SNAP', 'EWA', 'IBM', 'DOCU',
                             'VZ', 'JNJ', 'IVV', 'AAPL', 'MSFT', 'FB']
 
+    def get_tickers_ibrk(self, which = 'current'):
+        # Create a new session of the IB Web API.
+        # start /Users/razvanjulianpetrescu/Downloads/clientportal.gw/bin/run.sh root/conf.yam
+        # authenticate using https://localhost:5000/
+        # then run this
+        print("Starting the gateway")
+        exe_cmd = "cd /Users/razvanjulianpetrescu/Downloads/clientportal.gw; ./bin/run.sh root/conf.yam &"
+        os.system(exe_cmd) # todo subprocess? this hangs
+        time.sleep(5)
+        print("Launching OAuth")
+        exe_cmd = "open https://localhost:5000/"
+        os.system(exe_cmd)
+        time.sleep(30)
+        
+        ib_client = IBClient(
+            username="zzkj98765",
+            account="U3900095",
+            is_server_running=True
+        )
+
+        # create a new session
+        ib_client.create_session()
+
+        # grab the account data.
+        account_data = ib_client.portfolio_accounts()
+        print(account_data)
+
+        # grab account portfolios
+        account_positions = ib_client.portfolio_account_positions(
+            account_id="U3900095",
+            page_id=0
+        )
+        print(account_positions)
+
     def db_op(self, op):
         if op not in {'start', 'stop'}:
             print('Db command error')
@@ -45,10 +79,7 @@ class QuantAuto:
         exe_cmd = self.cmd_unix.replace("__OP__", op)
         print(f"Executing database {op}...")
         os.system(exe_cmd)
-        #stream = os.popen(exe_cmd)
         time.sleep(2)
-        #output = stream.read()
-        #print(f"\t{output}")
         print("Exiting step.")
 
     def db_con(self):
@@ -99,7 +130,6 @@ class QuantAuto:
                 signal_n = my_data.mean(axis=0)  # this is a series
                 current = si.get_live_price(ticker)
                 print(f"{ticker}: Signal {signal_n[1]}  vs current price {current}")
-                # print(signal[1]) # close
 
                 if current > signal_n[1]:
                     signal_s = "BUY"
@@ -125,7 +155,6 @@ class QuantAuto:
         for date_back in self.dates_back_check:
             date_check = dt.date.today() - dt.timedelta(date_back)
             print(date_check)
-            # date_check = dt.date(2021, 12, 11) # override until data
 
             for ticker in self.ticker_list:
                 self.cursor.execute("call public.determine_performance(%s, %s, %s); fetch all in cur;",
@@ -145,16 +174,12 @@ class QuantAuto:
 # fb_earnings = si.get_earnings("fb")
 # print(fb_earnings)
 
-# df = pd.DataFrame(np.random.randn(5, 4),
-#                  index = ['a', 'b', 'c', 'd', 'e'],
-#                  columns = ['A', 'B', 'C', 'D'])
-# print(df)
-
 # print(historical_datas)  # it is a dictionary of data frames
 
 
 qa = QuantAuto()
-qa.db_op("start")
-qa.execute_get()
-qa.execute_check()
-qa.db_op("stop")
+# qa.db_op("start")
+# qa.execute_get()
+# qa.execute_check()
+# qa.db_op("stop")
+qa.get_tickers_ibrk()
